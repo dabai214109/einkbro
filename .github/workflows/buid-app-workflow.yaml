@@ -47,9 +47,9 @@ jobs:
         # which the previous action used: ignore whitespace/non-alphabet bytes.
         run: echo "${{ secrets.KEYSTORE }}" | tr -d '[:space:]' | base64 -di > "$RUNNER_TEMP/android_keystore.keystore"
       - name: Build the app
-        # assembleReleaseAlt builds the side-by-side `info.plateaukao.einkbro.a` variant
-        # alongside the main release; -PuniversalApk applies to both.
-        run: ./gradlew assembleRelease assembleReleaseAlt -PuniversalApk -Pandroid.injected.signing.store.file=$RUNNER_TEMP/android_keystore.keystore -Pandroid.injected.signing.store.password=${{ secrets.PASSWORD }} -Pandroid.injected.signing.key.alias=${{ secrets.ALIAS }} -Pandroid.injected.signing.key.password=${{ secrets.PASSWORD }}
+        # arm64-v8a only: the test device (Redmi K40) is arm64. `-PbuildAbis`
+        # takes a comma-separated ABI list; drop the flag to build all four.
+        run: ./gradlew assembleRelease -PbuildAbis=arm64-v8a -Pandroid.injected.signing.store.file=$RUNNER_TEMP/android_keystore.keystore -Pandroid.injected.signing.store.password=${{ secrets.PASSWORD }} -Pandroid.injected.signing.key.alias=${{ secrets.ALIAS }} -Pandroid.injected.signing.key.password=${{ secrets.PASSWORD }}
       - name: Publish snapshot pre-release
         # Rolling pre-release replacing the old CI-artifact "snapshot" downloads:
         # each commit on main recreates the `snapshot` tag/release so the
@@ -64,9 +64,4 @@ jobs:
             --target "$GITHUB_SHA" \
             --title "Snapshot (${GITHUB_SHA:0:7})" \
             --notes "Automated pre-release build of commit ${GITHUB_SHA}. Built from main on every commit; may be unstable." \
-            app/build/outputs/apk/release/app-arm64-v8a-release.apk \
-            app/build/outputs/apk/release/app-armeabi-v7a-release.apk \
-            app/build/outputs/apk/release/app-x86_64-release.apk \
-            app/build/outputs/apk/release/app-x86-release.apk \
-            app/build/outputs/apk/release/app-universal-release.apk \
-            app/build/outputs/apk/releaseAlt/app-universal-releaseAlt.apk
+            app/build/outputs/apk/release/app-arm64-v8a-release.apk
