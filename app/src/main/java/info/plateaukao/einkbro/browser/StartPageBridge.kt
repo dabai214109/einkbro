@@ -3,9 +3,13 @@ package info.plateaukao.einkbro.browser
 import android.webkit.JavascriptInterface
 import info.plateaukao.einkbro.database.Record
 import info.plateaukao.einkbro.database.RecordType
+import info.plateaukao.einkbro.preference.ConfigManager
 import info.plateaukao.einkbro.search.suggestion.SearchSuggestionViewModel
 import info.plateaukao.einkbro.util.Constants
 import info.plateaukao.einkbro.view.EBWebView
+import info.plateaukao.einkbro.view.dialog.StartPageConfigDialog
+import info.plateaukao.einkbro.view.dialog.StartPageItemActionsDialog
+import info.plateaukao.einkbro.view.dialog.StartPageItemDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -26,6 +30,7 @@ import org.koin.core.component.inject
  */
 class StartPageBridge(private val webView: EBWebView) : KoinComponent {
     private val coroutineScope: CoroutineScope by inject()
+    private val config: ConfigManager by inject()
     private val suggestionViewModel = SearchSuggestionViewModel()
 
     private var initialized = false
@@ -64,6 +69,37 @@ class StartPageBridge(private val webView: EBWebView) : KoinComponent {
             if (webView.url != Constants.START_PAGE_URL) return@post
             // loadUrl wraps non-url text into a search engine query
             webView.loadUrl(trimmed)
+        }
+    }
+
+    @JavascriptInterface
+    fun open(url: String) {
+        webView.post {
+            if (webView.url != Constants.START_PAGE_URL) return@post
+            when {
+                url.startsWith("einkbro://add_start_item") ->
+                    coroutineScope.launch(Dispatchers.Main) { StartPageItemDialog(webView).show() }
+
+                url.startsWith("einkbro://config_start_page") ->
+                    coroutineScope.launch(Dispatchers.Main) { StartPageConfigDialog(webView).show() }
+
+                // unknown internal actions are ignored on purpose
+                url.startsWith("einkbro://") -> Unit
+
+                // loadUrl wraps non-url text into a search engine query
+                else -> webView.loadUrl(url)
+            }
+        }
+    }
+
+    @JavascriptInterface
+    fun longPress(url: String) {
+        webView.post {
+            if (webView.url != Constants.START_PAGE_URL) return@post
+            val item = config.startPageItems.firstOrNull { it.url == url } ?: return@post
+            coroutineScope.launch(Dispatchers.Main) {
+                StartPageItemActionsDialog(webView, item).show()
+            }
         }
     }
 

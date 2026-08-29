@@ -10,12 +10,27 @@ import info.plateaukao.einkbro.activity.WhiteListType
 import info.plateaukao.einkbro.setting.ActionSettingItem
 import info.plateaukao.einkbro.setting.BooleanSettingItem
 import info.plateaukao.einkbro.setting.DividerSettingItem
+import info.plateaukao.einkbro.preference.ConfigManager
+import info.plateaukao.einkbro.preference.StartPageLayout
 import info.plateaukao.einkbro.setting.ListSettingWithEnumItem
 import info.plateaukao.einkbro.setting.SettingItemInterface
+import info.plateaukao.einkbro.unit.StartPageRefresher
 
 fun buildStartSettingItems(deps: SettingScreenDeps): List<SettingItemInterface> {
     val config = deps.config
     return listOf(
+        ListSettingWithEnumItem(
+            R.string.setting_title_start_page_layout,
+            0,
+            R.string.setting_summary_start_page_layout,
+            StartPageLayoutProp(config)::value,
+            listOf(
+                R.string.start_page_layout_list,
+                R.string.start_page_layout_grid_two,
+                R.string.start_page_layout_grid_three,
+            )
+        ),
+        DividerSettingItem(),
         ActionSettingItem(
             R.string.setting_title_site_rules,
             0,
@@ -132,4 +147,14 @@ fun buildStartSettingItems(deps: SettingScreenDeps): List<SettingItemInterface> 
             config.browser::enableSaveData
         ),
     )
+}
+
+/** Property wrapper so switching the layout also re-renders open start pages. */
+private class StartPageLayoutProp(private val config: ConfigManager) {
+    var value: StartPageLayout
+        get() = config.startPageLayout
+        set(value) {
+            config.startPageLayout = value
+            StartPageRefresher.refreshAll()
+        }
 }

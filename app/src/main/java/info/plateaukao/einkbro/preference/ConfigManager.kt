@@ -190,6 +190,16 @@ class ConfigManager(
     // Custom start page heading; blank means the default app name
     var startPageTitle by StringPreference(sp, K_START_PAGE_TITLE, "")
 
+    // Start page card arrangement: one card per row, or a 2/3-column grid
+    var startPageLayout: StartPageLayout
+        get() {
+            val str = sp.getString(K_START_PAGE_LAYOUT, "")
+            return if (str.isNullOrEmpty()) StartPageLayout.LIST
+            else runCatching { StartPageLayout.entries[str.toInt()] }
+                .getOrDefault(StartPageLayout.LIST)
+        }
+        set(value) = sp.edit { putString(K_START_PAGE_LAYOUT, value.ordinal.toString()) }
+
     var startPageItems: List<StartPageItem>
         get() {
             val string = sp.getString(K_START_PAGE_ITEMS, "").orEmpty()
@@ -221,6 +231,14 @@ class ConfigManager(
 
     fun removeStartPageItem(url: String) {
         startPageItems = startPageItems.filter { it.url != url }
+    }
+
+    fun updateStartPageItem(oldUrl: String, newItem: StartPageItem) {
+        startPageItems = startPageItems.map { if (it.url == oldUrl) newItem else it }
+    }
+
+    fun setStartPageItemPinned(url: String, pinned: Boolean) {
+        startPageItems = startPageItems.map { if (it.url == url) it.copy(pinned = pinned) else it }
     }
 
     var savedEpubFileInfos: List<SavedFileInfo>
@@ -293,6 +311,7 @@ class ConfigManager(
         const val K_RECENT_BOOKMARKS = "sp_recent_bookmarks"
         const val K_START_PAGE_ITEMS = "sp_start_page_items"
         const val K_START_PAGE_TITLE = "sp_start_page_title"
+        const val K_START_PAGE_LAYOUT = "sp_start_page_layout"
         const val K_RESTART_CHANGED = "restart_changed"
 
         const val K_CLEAR_CACHE = "SP_CLEAR_CACHE_9"

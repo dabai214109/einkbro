@@ -8,6 +8,8 @@ import android.util.Log
 import androidx.core.view.WindowInsetsCompat
 import info.plateaukao.einkbro.R
 import info.plateaukao.einkbro.preference.ConfigManager
+import info.plateaukao.einkbro.preference.StartPageItem
+import info.plateaukao.einkbro.preference.StartPageLayout
 import info.plateaukao.einkbro.util.Constants
 import info.plateaukao.einkbro.view.EBWebView
 import kotlinx.coroutines.Dispatchers
@@ -67,25 +69,30 @@ object BookmarkRenderer : KoinComponent {
 
     private fun getStartPageContent(webView: EBWebView): String {
         val context = webView.context
-        val content = config.startPageItems.joinToString(separator = "\n") {
-            val name = it.title.escapeHtml()
-            val initial = it.title.firstOrNull()?.uppercase()?.escapeHtml() ?: "#"
-            // prefer the favicon the browser already stored for this domain;
-            // fall back to fetching /favicon.ico, then to the initial letter
-            val iconSrc = faviconDataUri(it.url) ?: try {
-                val uri = java.net.URI(it.url)
-                "${uri.scheme}://${uri.host}/favicon.ico"
-            } catch (e: Exception) { "" }
-            """
-            <a href="${it.url}" class="tile">
-                <div class="tile-icon">
-                    <img src="$iconSrc" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-                    <span class="fallback">$initial</span>
-                </div>
-                <div class="tile-name">$name</div>
-            </a>
-            """
+        StartPageRefresher.register(webView)
+        // pinned cards first; insertion order is kept within each group
+        val items = config.startPageItems.sortedByDescending { it.pinned }
+        val content = items.joinToString(separator = "\n") { item ->
+            when (config.startPageLayout) {
+                StartPageLayout.LIST -> listCard(item)
+                else -> gridTile(item)
+            }
         }
+        val addControl = when (config.startPageLayout) {
+            StartPageLayout.LIST -> listAddCard(context)
+            else -> gridAddTile(context)
+        }
+        val layoutClass = when (config.startPageLayout) {
+            StartPageLayout.LIST -> "layout-list"
+            StartPageLayout.GRID_TWO -> "layout-grid cols-2"
+            StartPageLayout.GRID_THREE -> "layout-grid cols-3"
+        }
+        val emptyHint =
+            if (items.isEmpty()) {
+                "<div class=\"empty-hint\">" +
+                    context.getString(R.string.start_page_empty_hint).escapeHtml() +
+                    "</div>"
+            } else ""
         val backgroundBytes = startPageBackgroundFile(context)
             .takeIf { it.exists() }?.readBytes()
         val sampledBackground = backgroundBytes?.let { decodeSampled(it) }
@@ -111,10 +118,90 @@ object BookmarkRenderer : KoinComponent {
                 if (backgroundBytes == null) themeStyle(darkTheme) else ""
             )
             .replace("{{SEARCH_HINT}}", context.getString(R.string.main_omnibox_input_hint))
-            .replace("{{ADD_LABEL}}", context.getString(R.string.whitelist_add))
-            .replace("{{TOP_INSET}}", statusBarCssPx(webView).toString())
+            .replace("{{LAYOUT_CLASS}}", layoutClass)
+            .replace("{{ADD_CONTROL}}", addControl)
             .replace("{{CONTENT}}", content)
+            .replace("{{EMPTY_HINT}}", emptyHint)
+            .replace("{{TOP_INSET}}", statusBarCssPx(webView).toString())
     }
+
+    // grid card: icon over the name, fixed tile width
+    private fun gridTile(item: StartPageItem): String {
+        val name = item.title.escapeHtml()
+        val initial = item.title.firstOrNull()?.uppercase()?.escapeHtml() ?: "#"
+        val iconSrc = faviconDataUri(item.url) ?: faviconUrl(item.url)
+        return """
+            <div class="tile" data-url="${item.url.escapeHtml()}">
+                <div class="tile-icon">
+                    <img src="$iconSrc" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+                    <span class="fallback">$initial</span>${pinMark(item)}
+                </div>
+                <div class="tile-name">$name</div>
+            </div>
+            """
+    }
+
+    // list card: one full-width row with icon, name and domain
+    private fun listCard(item: StartPageItem): String {
+        val name = item.title.escapeHtml()
+        val initial = item.title.firstOrNull()?.uppercase()?.escapeHtml() ?: "#"
+        val iconSrc = faviconDataUri(item.url) ?: faviconUrl(item.url)
+        return """
+            <div class="card" data-url="${item.url.escapeHtml()}">
+                <div class="card-icon">
+                    <img src="$iconSrc" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+                    <span class="fallback">$initial</span>${pinMark(item)}
+                </div>
+                <div class="info">
+                    <div class="name">$name</div>
+                    <div class="domain">${hostOf(item.url).escapeHtml()}</div>
+                </div>
+            </div>
+            """
+    }
+
+    private fun gridAddTile(context: Context): String = """
+            <div class="tile" data-url="einkbro://add_start_item">
+                <div class="tile-icon">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                </div>
+                <div class="tile-name">${context.getString(R.string.start_page_add_site).escapeHtml()}</div>
+            </div>
+            """
+
+    private fun listAddCard(context: Context): String = """
+            <div class="card add-card" data-url="einkbro://add_start_item">
+                <div class="card-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                </div>
+                <div class="info">
+                    <div class="name">${context.getString(R.string.start_page_add_site).escapeHtml()}</div>
+                </div>
+            </div>
+            """
+
+    private fun faviconUrl(url: String): String = try {
+        val uri = java.net.URI(url)
+        "${uri.scheme}://${uri.host}/favicon.ico"
+    } catch (e: Exception) {
+        ""
+    }
+
+    private fun hostOf(url: String): String = try {
+        java.net.URI(url).host?.removePrefix("www.") ?: url
+    } catch (e: Exception) {
+        url
+    }
+
+    // small badge on a pinned card; empty for unpinned ones
+    private fun pinMark(item: StartPageItem): String =
+        if (item.pinned) "<span class=\"pin-mark\"></span>" else ""
 
     /**
      * Status bar height in CSS pixels. On Android 15+ (targetSdk 35+) the
@@ -201,6 +288,12 @@ object BookmarkRenderer : KoinComponent {
     .tile-icon { border-color: ${hex(accent)} !important; background: ${hex(bg)} !important; }
     .tile-icon svg { color: ${hex(fg)} !important; }
     .tile-icon .fallback { color: ${hex(fg)} !important; }
+    .card { color: ${hex(fg)} !important; border-color: ${hex(accent)} !important; background: transparent !important; }
+    .card:active { background: ${hex(tonal)} !important; }
+    .card-icon { border-color: ${hex(accent)} !important; background: ${hex(bg)} !important; }
+    .card-icon svg { color: ${hex(fg)} !important; }
+    .card-icon .fallback { color: ${hex(fg)} !important; }
+    .card.add-card { color: ${hex(accent)} !important; }
     </style>"""
     }
 
