@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <string name="app_name">EinkBro</string>
+    <string name="app_name">Shark直连管理</string>
     <string name="list_empty">当前列表为空</string>
     <string name="bookmarks">书签</string>
     <string name="album_title_history">历史</string>

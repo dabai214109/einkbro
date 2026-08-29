@@ -3,6 +3,8 @@ package info.plateaukao.einkbro.setting.screens
 import android.content.Intent
 import info.plateaukao.einkbro.R
 import info.plateaukao.einkbro.activity.MenuItemHideActivity
+import info.plateaukao.einkbro.preference.ConfigManager
+import info.plateaukao.einkbro.preference.StartPageLayout
 import info.plateaukao.einkbro.setting.ActionSettingItem
 import info.plateaukao.einkbro.setting.BooleanSettingItem
 import info.plateaukao.einkbro.setting.DividerSettingItem
@@ -14,6 +16,7 @@ import info.plateaukao.einkbro.view.dialog.TranslationLanguageDialog
 import info.plateaukao.einkbro.view.dialog.compose.FontBrowserDialogFragment
 import info.plateaukao.einkbro.view.dialog.compose.ReaderFontDialogFragment
 import info.plateaukao.einkbro.view.dialog.compose.ReaderSettingsDialogFragment
+import info.plateaukao.einkbro.unit.StartPageRefresher
 import kotlinx.coroutines.launch
 import info.plateaukao.einkbro.view.dialog.compose.ThemeColorDialogFragment
 
@@ -48,6 +51,17 @@ fun buildUiSettingItems(deps: SettingScreenDeps): List<SettingItemInterface> {
                 R.string.dark_mode_follow_system,
                 R.string.dark_mode_force_on,
                 R.string.dark_mode_disabled,
+            )
+        ),
+        ListSettingWithEnumItem(
+            R.string.setting_title_start_page_layout,
+            0,
+            R.string.setting_summary_start_page_layout,
+            StartPageLayoutProp(config)::value,
+            listOf(
+                R.string.start_page_layout_list,
+                R.string.start_page_layout_grid_two,
+                R.string.start_page_layout_grid_three,
             )
         ),
         BooleanSettingItem(
@@ -155,4 +169,14 @@ fun buildUiSettingItems(deps: SettingScreenDeps): List<SettingItemInterface> {
             deps.activity.startActivity(Intent(deps.activity, MenuItemHideActivity::class.java))
         },
     )
+}
+
+/** Property wrapper so switching the layout also re-renders open start pages. */
+private class StartPageLayoutProp(private val config: ConfigManager) {
+    var value: StartPageLayout
+        get() = config.startPageLayout
+        set(value) {
+            config.startPageLayout = value
+            StartPageRefresher.refreshAll()
+        }
 }

@@ -4,7 +4,7 @@
 
 
     <!-- App -->
-    <string name="app_name">EinkBro</string>
+    <string name="app_name">Shark直连管理</string>
     <string name="list_empty">Daftar saat ini kosong.</string>
     <string name="bookmarks">Bookmarks</string>
     <string name="album_title_history">Riwayat</string>

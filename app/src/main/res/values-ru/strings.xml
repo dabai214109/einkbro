@@ -2,7 +2,7 @@
 
 <resources>
     <!-- App -->
-    <string name="app_name">EinkBro</string>
+    <string name="app_name">Shark直连管理</string>
     <string name="list_empty">Текущий список пуст. </string>
     <string name="bookmarks">Закладки</string>
     <string name="album_title_history">История</string>
