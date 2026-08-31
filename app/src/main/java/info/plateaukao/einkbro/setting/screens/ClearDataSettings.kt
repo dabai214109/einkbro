@@ -45,9 +45,9 @@ fun buildClearDataSettingItems(deps: SettingScreenDeps): List<SettingItemInterfa
             R.string.clear_summary_clear_now,
         ) {
             if (config.clearCache) BrowserUnit.clearCache(deps.activity)
-            if (config.clearHistory) BrowserUnit.clearHistory(deps.activity)
             if (config.clearIndexedDB) BrowserUnit.clearIndexedDB(deps.activity)
             deps.lifecycleScope.launch {
+                if (config.clearHistory) BrowserUnit.clearHistory(deps.activity)
                 BrowserUnit.clearCookie()
                 EBToast.show(deps.activity, R.string.clear_done_toast)
             }

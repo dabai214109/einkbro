@@ -24,8 +24,8 @@ import info.plateaukao.einkbro.R
 import info.plateaukao.einkbro.preference.ConfigManager
 import info.plateaukao.einkbro.preference.StartPageItem
 import info.plateaukao.einkbro.unit.BookmarkRenderer
-import info.plateaukao.einkbro.unit.EBToast
 import info.plateaukao.einkbro.unit.PasswordStore
+import info.plateaukao.einkbro.view.EBToast
 import info.plateaukao.einkbro.view.EBWebView
 import info.plateaukao.einkbro.view.compose.MyTheme
 import org.koin.core.component.KoinComponent
@@ -125,9 +125,18 @@ class StartPageItemActionsDialog(
             view = composeView,
             okAction = {
                 if (clearCookieState.value) {
-                    android.webkit.CookieManager.getInstance().removeCookies(item.url) {
-                        android.webkit.CookieManager.getInstance().flush()
+                    // CookieManager.removeCookies is not in the public SDK
+                    // API surface; expire the site's cookies via setCookie
+                    // instead (host-scoped and dot-domain variants).
+                    val cm = android.webkit.CookieManager.getInstance()
+                    cm.getCookie(item.url)?.split(";")?.forEach { pair ->
+                        val name = pair.trim().substringBefore("=")
+                        if (name.isNotEmpty()) {
+                            cm.setCookie(item.url, "$name=;Max-Age=0;Path=/")
+                            cm.setCookie(item.url, "$name=;Max-Age=0;Path=/;Domain=.$host")
+                        }
                     }
+                    cm.flush()
                 }
                 if (clearPasswordState.value) {
                     passwordStore.removeHost(host)

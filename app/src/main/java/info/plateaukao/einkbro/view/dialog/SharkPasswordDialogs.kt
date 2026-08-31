@@ -21,9 +21,9 @@ import info.plateaukao.einkbro.R
 import info.plateaukao.einkbro.database.PasswordEntry
 import info.plateaukao.einkbro.preference.ConfigManager
 import info.plateaukao.einkbro.preference.StartPageItem
-import info.plateaukao.einkbro.unit.EBToast
 import info.plateaukao.einkbro.unit.PasswordStore
 import info.plateaukao.einkbro.unit.StartPageRefresher
+import info.plateaukao.einkbro.view.EBToast
 import info.plateaukao.einkbro.view.EBWebView
 import info.plateaukao.einkbro.view.compose.MyTheme
 import org.koin.core.component.KoinComponent

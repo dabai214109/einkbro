@@ -29,8 +29,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import info.plateaukao.einkbro.R
 import info.plateaukao.einkbro.preference.ConfigManager
-import info.plateaukao.einkbro.unit.EBToast
 import info.plateaukao.einkbro.unit.PasswordStore
+import info.plateaukao.einkbro.view.EBToast
 import info.plateaukao.einkbro.view.dialog.DialogManager
 import org.koin.core.context.GlobalContext
 
