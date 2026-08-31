@@ -69,7 +69,7 @@ android {
         // via enableOnBackInvokedCallback=false.
         targetSdk = 36
         versionCode = 16_05_00
-        versionName = "16.5.0"
+        versionName = "16.5.0-shark"
 
         // Google Drive backup sync: an "installed app" OAuth client (not a secret;
         // PKCE, no client secret) with the reversed-client-id custom-scheme redirect.

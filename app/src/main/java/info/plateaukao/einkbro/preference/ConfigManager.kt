@@ -289,6 +289,7 @@ class ConfigManager(
     var clearCookies by BooleanPreference(sp, K_CLEAR_COOKIES, false)
     var clearHistory by BooleanPreference(sp, K_CLEAR_HISTORY, false)
     var clearWhenQuit by BooleanPreference(sp, K_CLEAR_WHEN_QUIT, false)
+    var promptSavePassword by BooleanPreference(sp, K_PROMPT_SAVE_PASSWORD, true)
 
     var instapaperUsername by StringPreference(sp, K_INSTAPAPER_USERNAME, "")
     var instapaperPassword by StringPreference(sp, K_INSTAPAPER_PASSWORD, "")
@@ -319,6 +320,7 @@ class ConfigManager(
         const val K_CLEAR_COOKIES = "SP_CLEAR_COOKIE_9"
         const val K_CLEAR_INDEXEDDB = "sp_clear_Indexeddb"
         const val K_CLEAR_WHEN_QUIT = "SP_CLEAR_QUIT_9"
+        const val K_PROMPT_SAVE_PASSWORD = "sp_prompt_save_password"
 
         const val K_SAVED_EPUBS = "sp_saved_epubs"
         const val K_SAVED_PDFS = "sp_saved_pdfs"

@@ -83,6 +83,7 @@ class EinkBroApplication : Application() {
         single { AdBlock(androidContext()) }
         single { Javascript(androidContext()) }
         single { Cookie(androidContext()) }
+        single { info.plateaukao.einkbro.unit.PasswordStore(androidContext()) }
         single { ttsManager }
         single { TtsNotificationManager(androidContext()) }
         single { WebSpeechHandler(androidContext()) }

@@ -26,4 +26,6 @@ interface BackupOps {
     fun importBookmarks()
     fun exportUserscripts()
     fun importUserscripts()
+    fun exportSharkData()
+    fun importSharkData()
 }

@@ -62,6 +62,7 @@ import info.plateaukao.einkbro.activity.SettingRoute.Gesture
 import info.plateaukao.einkbro.activity.SettingRoute.Main
 import info.plateaukao.einkbro.activity.SettingRoute.Misc
 import info.plateaukao.einkbro.activity.SettingRoute.Search
+import info.plateaukao.einkbro.activity.SettingRoute.Passwords
 import info.plateaukao.einkbro.activity.SettingRoute.StartControl
 import info.plateaukao.einkbro.activity.SettingRoute.Toolbar
 import info.plateaukao.einkbro.activity.SettingRoute.Ui
@@ -89,6 +90,7 @@ import info.plateaukao.einkbro.setting.screens.buildGestureSettingItems
 import info.plateaukao.einkbro.setting.screens.buildMainSettingItems
 import info.plateaukao.einkbro.setting.screens.buildMiscSettingItems
 import info.plateaukao.einkbro.setting.screens.buildSearchSettingItems
+import info.plateaukao.einkbro.setting.screens.PasswordScreen
 import info.plateaukao.einkbro.setting.screens.buildStartSettingItems
 import info.plateaukao.einkbro.setting.screens.buildToolbarSettingItems
 import info.plateaukao.einkbro.setting.screens.buildUiSettingItems
@@ -117,6 +119,7 @@ class SettingActivity : FragmentActivity(), BackupOps {
     private val driveRepository: GoogleDriveRepository by inject()
     private val dialogManager: DialogManager by lazy { DialogManager(this) }
     private val backupUnit: BackupUnit by lazy { BackupUnit(this) }
+    private val passwordStore: info.plateaukao.einkbro.unit.PasswordStore by inject()
 
     private var pendingBackupCategories: Set<BackupCategory> = emptySet()
 
@@ -143,6 +146,109 @@ class SettingActivity : FragmentActivity(), BackupOps {
             val uri: Uri = result.data?.data ?: return@registerForActivityResult
             backupUnit.importUserscripts(uri)
         }
+
+    private val exportSharkLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val uri: Uri = result.data?.data ?: return@registerForActivityResult
+            lifecycleScope.launch(Dispatchers.IO) { exportSharkDataTo(uri) }
+        }
+
+    private val importSharkLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val uri: Uri = result.data?.data ?: return@registerForActivityResult
+            lifecycleScope.launch(Dispatchers.IO) { importSharkDataFrom(uri) }
+        }
+
+    override fun exportSharkData() {
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(Intent.EXTRA_TITLE, "shark_data.json")
+        }
+        exportSharkLauncher.launch(intent)
+    }
+
+    override fun importSharkData() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "*/*"
+        }
+        importSharkLauncher.launch(intent)
+    }
+
+    // Plain-JSON export: cards + credentials (passwords in clear text — the
+    // Keystore key cannot leave the device, so an encrypted file would be
+    // unreadable after a phone change).
+    private fun exportSharkDataTo(uri: Uri) {
+        runCatching {
+            val obj = org.json.JSONObject()
+            val cards = org.json.JSONArray()
+            config.startPageItems.forEach {
+                cards.put(
+                    org.json.JSONObject()
+                        .put("title", it.title)
+                        .put("url", it.url)
+                        .put("pinned", it.pinned)
+                )
+            }
+            obj.put("cards", cards)
+            val passwords = org.json.JSONArray()
+            passwordStore.all().forEach {
+                passwords.put(
+                    org.json.JSONObject()
+                        .put("host", it.host)
+                        .put("username", it.username)
+                        .put("password", passwordStore.plainPassword(it))
+                )
+            }
+            obj.put("passwords", passwords)
+            contentResolver.openOutputStream(uri)?.use { stream ->
+                stream.write(obj.toString().toByteArray(Charsets.UTF_8))
+            }
+        }
+        runOnUiThread {
+            info.plateaukao.einkbro.view.EBToast.show(this, R.string.shark_export_done)
+        }
+    }
+
+    private fun importSharkDataFrom(uri: Uri) {
+        runCatching {
+            val text = contentResolver.openInputStream(uri)?.use {
+                it.readBytes().toString(Charsets.UTF_8)
+            } ?: return
+            val obj = org.json.JSONObject(text)
+            val cards = obj.optJSONArray("cards")
+            cards?.let {
+                for (i in 0 until it.length()) {
+                    val c = it.getJSONObject(i)
+                    val item = info.plateaukao.einkbro.preference.StartPageItem(
+                        c.getString("title"),
+                        c.getString("url"),
+                        c.optBoolean("pinned", false),
+                    )
+                    if (config.startPageItems.none { existing ->
+                            existing.url == item.url && existing.title == item.title
+                        }
+                    ) {
+                        config.startPageItems = config.startPageItems + item
+                    }
+                }
+            }
+            obj.optJSONArray("passwords")?.let {
+                for (i in 0 until it.length()) {
+                    val p = it.getJSONObject(i)
+                    passwordStore.put(
+                        "https://" + p.getString("host"),
+                        p.getString("username"),
+                        p.getString("password"),
+                    )
+                }
+            }
+        }
+        runOnUiThread {
+            info.plateaukao.einkbro.view.EBToast.show(this, R.string.shark_import_done)
+        }
+    }
 
     private val exportBackupLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -263,6 +369,9 @@ class SettingActivity : FragmentActivity(), BackupOps {
                         }
                         composable(DataControl.name) {
                             SettingScreen(navController, clearDataSettingItems, dialogManager, action, 1)
+                        }
+                        composable(Passwords.name) {
+                            PasswordScreen(navController)
                         }
                         composable(UserAgent.name) {
                             SettingScreen(navController, userAgentSettingItems, dialogManager, action, 1)
@@ -591,6 +700,7 @@ enum class SettingRoute(@StringRes val titleId: Int) {
     Backup(R.string.setting_title_data),
     StartControl(R.string.setting_title_start_control),
     DataControl(R.string.setting_title_clear_control),
+    Passwords(R.string.setting_title_passwords),
     UserAgent(R.string.setting_title_userAgent),
     Search(R.string.setting_title_search),
     About(R.string.title_about),

@@ -3,7 +3,11 @@ package info.plateaukao.einkbro.setting.screens
 import info.plateaukao.einkbro.R
 import info.plateaukao.einkbro.setting.ActionSettingItem
 import info.plateaukao.einkbro.setting.BooleanSettingItem
+import info.plateaukao.einkbro.setting.DividerSettingItem
 import info.plateaukao.einkbro.setting.SettingItemInterface
+import info.plateaukao.einkbro.unit.BrowserUnit
+import info.plateaukao.einkbro.view.EBToast
+import kotlinx.coroutines.launch
 
 fun buildClearDataSettingItems(deps: SettingScreenDeps): List<SettingItemInterface> {
     val config = deps.config
@@ -35,6 +39,19 @@ fun buildClearDataSettingItems(deps: SettingScreenDeps): List<SettingItemInterfa
             R.string.clear_summary_quit,
             config::clearWhenQuit
         ),
+        ActionSettingItem(
+            R.string.clear_title_clear_now,
+            0,
+            R.string.clear_summary_clear_now,
+        ) {
+            if (config.clearCache) BrowserUnit.clearCache(deps.activity)
+            if (config.clearHistory) BrowserUnit.clearHistory(deps.activity)
+            if (config.clearIndexedDB) BrowserUnit.clearIndexedDB(deps.activity)
+            deps.lifecycleScope.launch {
+                BrowserUnit.clearCookie()
+                EBToast.show(deps.activity, R.string.clear_done_toast)
+            }
+        },
         ActionSettingItem(
             R.string.clear_title_deleteDatabase,
             0,

@@ -424,6 +424,10 @@ open class EBWebView(
             info.plateaukao.einkbro.browser.StartPageBridge(this),
             "einkbroStartPage",
         )
+        addJavascriptInterface(
+            info.plateaukao.einkbro.browser.PasswordBridge(this),
+            "sharkDock",
+        )
     }
 
     // region userscript support

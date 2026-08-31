@@ -8,6 +8,7 @@ import info.plateaukao.einkbro.activity.SettingRoute.ChatGPT
 import info.plateaukao.einkbro.activity.SettingRoute.DataControl
 import info.plateaukao.einkbro.activity.SettingRoute.Gesture
 import info.plateaukao.einkbro.activity.SettingRoute.Misc
+import info.plateaukao.einkbro.activity.SettingRoute.Passwords
 import info.plateaukao.einkbro.activity.SettingRoute.Search
 import info.plateaukao.einkbro.activity.SettingRoute.StartControl
 import info.plateaukao.einkbro.activity.SettingRoute.Toolbar
@@ -50,6 +51,11 @@ fun buildMainSettingItems(): List<SettingItemInterface> = listOf(
         R.string.setting_title_clear_control,
         R.drawable.ic_data,
         destination = DataControl
+    ),
+    NavigateSettingItem(
+        R.string.setting_title_passwords,
+        R.drawable.ic_data,
+        destination = Passwords
     ),
     NavigateSettingItem(
         R.string.setting_title_search,

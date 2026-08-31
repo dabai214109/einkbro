@@ -35,6 +35,7 @@ class StartPageConfigDialog(private val ebWebView: EBWebView) : KoinComponent {
 
     suspend fun show() {
         val options = mutableListOf(
+            activity.getString(R.string.setting_title_start_page_layout),
             activity.getString(R.string.start_page_edit_title),
             activity.getString(R.string.start_page_set_background),
         )
@@ -43,11 +44,26 @@ class StartPageConfigDialog(private val ebWebView: EBWebView) : KoinComponent {
         }
 
         when (activity.showPlainListDialog(null, options)) {
-            0 -> editTitle()
+            0 -> chooseLayout()
+            1 -> editTitle()
             // picker result lands in BrowserActivity, which reloads the page
-            1 -> ebWebView.webViewCallback?.chooseStartPageBackground()
-            2 -> clearBackground()
+            2 -> ebWebView.webViewCallback?.chooseStartPageBackground()
+            3 -> clearBackground()
         }
+    }
+
+    private suspend fun chooseLayout() {
+        val names = listOf(
+            activity.getString(R.string.start_page_layout_list),
+            activity.getString(R.string.start_page_layout_grid_two),
+            activity.getString(R.string.start_page_layout_grid_three),
+        )
+        val index = activity.showPlainListDialog(
+            R.string.setting_title_start_page_layout,
+            names,
+        ) ?: return
+        config.startPageLayout = info.plateaukao.einkbro.preference.StartPageLayout.entries[index]
+        BookmarkRenderer.loadStartPage(ebWebView)
     }
 
     private fun editTitle() {
