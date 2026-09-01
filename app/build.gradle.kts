@@ -68,8 +68,10 @@ android {
         // reaching BrowserActivity.onKeyDown -> KeyHandler; the manifest opts out
         // via enableOnBackInvokedCallback=false.
         targetSdk = 36
-        versionCode = 16_05_00
-        versionName = "16.5.0-shark"
+        // versionCode must stay above the upstream-install value (160500) so
+        // the package installer never treats an update as a downgrade.
+        versionCode = 100000
+        versionName = "1.0.0"
 
         // Google Drive backup sync: an "installed app" OAuth client (not a secret;
         // PKCE, no client secret) with the reversed-client-id custom-scheme redirect.

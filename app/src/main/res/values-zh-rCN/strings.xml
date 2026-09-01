@@ -26,7 +26,7 @@
     <string name="menu_save_as">另存为…</string>
     <string name="menu_save_pdf">另存为PDF</string>
     <string name="menu_other_searchSite">页面中搜索</string>
-    <string name="menu_other_info">关于EinkBro</string>
+    <string name="menu_other_info">关于</string>
     <string name="dialog_title_hint">标题:</string>
     <string name="dialog_url_hint">网址:</string>
     <string name="dialog_extension_hint">扩展名 (例如: \".jpg\"):</string>
@@ -71,7 +71,7 @@
     <string name="setting_summary_history">保存已访问网站的历史记录。</string>
     <!-- browser clear -->
     <string name="clear_title_quit">应用程序退出时进行清除</string>
-    <string name="clear_summary_quit">每次退出 \"EinkBro浏览器\" 时，上述所有勾选的数据都将被删除。</string>
+    <string name="clear_summary_quit">每次退出 \"Shark直连管理\" 时，上述所有勾选的数据都将被删除。</string>
     <string name="clear_title_cache">清除缓存</string>
     <string name="clear_title_cookie">清除Cookie</string>
     <string name="clear_title_history">清除历史记录</string>
@@ -132,7 +132,7 @@
     <string name="toast_error">哎，出错了！</string>
     <string name="toast_edit_successful">已成功保存</string>
     <string name="toast_webview_forward">无法加载下一页面</string>
-    <string name="toast_restart">必须重新启动 \"EinkBro浏览器\" 才能应用更改，确定现在重启吗？</string>
+    <string name="toast_restart">必须重新启动 \"Shark直连管理\" 才能应用更改，确定现在重启吗？</string>
     <string name="toast_close_tab">是否关闭当前标签页？</string>
     <string name="toast_downloadComplete">下载完毕，是否打开文件？</string>
     <string name="whitelist_add">添加</string>

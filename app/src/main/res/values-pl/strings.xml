@@ -28,7 +28,7 @@
     <string name="menu_save_as">Zachowaj jako…</string>
     <string name="menu_save_pdf">Zachowaj jako PDF</string>
     <string name="menu_other_searchSite">Wyszukaj na tej stronie</string>
-    <string name="menu_other_info">About EinkBro</string>
+    <string name="menu_other_info">About</string>
     <!-- Dialog -->
     <string name="dialog_title_hint">Tytuł:</string>
     <string name="dialog_url_hint">Url:</string>
