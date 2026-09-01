@@ -184,7 +184,14 @@ enum class MenuItemType {
     SetHome, SaveBookmark, Epub, SavePdf,
     FontSize, WhiteBknd, BoldFont, Search, Download, Settings, BlackFont,
     SaveArchive, SaveMht, Highlights, InvertColor, PageAiActions, Instapaper, AudioOnly,
-    SiteSettings
+    SiteSettings;
+
+    // The overflow menu of this tool only keeps the settings entry visible by
+    // default; everything else stays reachable through 隐藏不常用的菜单项.
+    companion object {
+        val hiddenByDefault: Set<String> =
+            entries.map { it.name }.toSet() - setOf(Settings.name)
+    }
 }
 
 enum class MenuSection(val headerRes: Int?) {

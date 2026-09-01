@@ -660,8 +660,7 @@
     <string name="setting_title_start_page_layout">起始页排列方式</string>
     <string name="setting_summary_start_page_layout">起始页卡片的排列方式</string>
     <string name="start_page_layout_list">列表（一排一个）</string>
-    <string name="start_page_layout_grid_two">田字（一排两个）</string>
-    <string name="start_page_layout_grid_three">田字（一排三个）</string>
+    <string name="start_page_layout_grid_auto">宫格（自适应居中）</string>
     <string name="setting_title_passwords">密码管理</string>
     <string name="password_prompt_save">提示保存账号密码</string>
     <string name="password_export">导出</string>

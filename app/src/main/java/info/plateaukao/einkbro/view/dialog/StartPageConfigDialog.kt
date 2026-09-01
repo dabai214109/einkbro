@@ -55,8 +55,7 @@ class StartPageConfigDialog(private val ebWebView: EBWebView) : KoinComponent {
     private suspend fun chooseLayout() {
         val names = listOf(
             activity.getString(R.string.start_page_layout_list),
-            activity.getString(R.string.start_page_layout_grid_two),
-            activity.getString(R.string.start_page_layout_grid_three),
+            activity.getString(R.string.start_page_layout_grid_auto),
         )
         val index = activity.showPlainListDialog(
             R.string.setting_title_start_page_layout,

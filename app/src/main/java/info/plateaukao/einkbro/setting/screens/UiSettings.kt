@@ -60,8 +60,7 @@ fun buildUiSettingItems(deps: SettingScreenDeps): List<SettingItemInterface> {
             StartPageLayoutProp(config)::value,
             listOf(
                 R.string.start_page_layout_list,
-                R.string.start_page_layout_grid_two,
-                R.string.start_page_layout_grid_three,
+                R.string.start_page_layout_grid_auto,
             )
         ),
         BooleanSettingItem(

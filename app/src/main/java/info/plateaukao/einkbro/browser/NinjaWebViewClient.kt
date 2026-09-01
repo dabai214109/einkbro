@@ -360,7 +360,6 @@ class EBWebViewClient(
                 )
             }
             injectUserScripts(url, info.plateaukao.einkbro.userscript.RunAt.DOCUMENT_END)
-            SharkPasswordManager.onPageFinished(ebWebView, url)
         }
     }
 

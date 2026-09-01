@@ -12,4 +12,4 @@ data class StartPageItem(
 )
 
 /** Card arrangement of the built-in start page. */
-enum class StartPageLayout { LIST, GRID_TWO, GRID_THREE }
+enum class StartPageLayout { LIST, GRID }

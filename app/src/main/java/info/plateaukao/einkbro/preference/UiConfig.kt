@@ -57,7 +57,10 @@ class UiConfig(private val context: Context, private val sp: SharedPreferences) 
     var showActionMenuIcons by BooleanPreference(sp, K_SHOW_ACTION_MENU_ICONS, true)
 
     var hiddenMenuItems: Set<String>
-        get() = sp.getStringSet(K_HIDDEN_MENU_ITEMS, emptySet())?.toSet() ?: emptySet()
+        get() = sp.getStringSet(
+            K_HIDDEN_MENU_ITEMS,
+            info.plateaukao.einkbro.view.dialog.compose.MenuItemType.hiddenByDefault
+        )?.toSet() ?: info.plateaukao.einkbro.view.dialog.compose.MenuItemType.hiddenByDefault
         // Defensive copy: SharedPreferences takes ownership of the Set passed to
         // putStringSet and the caller must not mutate it afterward.
         set(value) = sp.edit { putStringSet(K_HIDDEN_MENU_ITEMS, value.toSet()) }

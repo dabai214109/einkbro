@@ -195,25 +195,12 @@ enum class ToolbarAction(
 
     companion object {
         fun fromOrdinal(value: Int) = entries[value]
+        // This tool only needs the tab preview and the menu entry.
         val defaultActionsForPhone: List<ToolbarAction> = listOf(
-            NewTab,
-            Touch,
-            ReaderMode,
-            Refresh,
-            Back,
-            Bookmark,
             TabCount,
-            InputUrl,
             Settings,
         )
         val defaultActions: List<ToolbarAction> = listOf(
-            Title,
-            NewTab,
-            Touch,
-            ReaderMode,
-            Refresh,
-            Back,
-            Bookmark,
             TabCount,
             Settings,
         )

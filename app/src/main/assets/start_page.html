@@ -285,14 +285,14 @@
     }
     .card.add-card { border-style: dashed; color: #555; }
     .grid.layout-grid {
-        display: grid;
+        display: flex;
+        flex-wrap: wrap;
         justify-content: center;
-        gap: 20px 12px;
+        align-content: flex-start;
+        gap: 20px 8px;
         width: 100%;
         max-width: 480px;
     }
-    .grid.cols-2 { grid-template-columns: repeat(2, 76px); }
-    .grid.cols-3 { grid-template-columns: repeat(3, 76px); }
     .empty-hint {
         grid-column: 1 / -1;
         text-align: center;

@@ -24,7 +24,6 @@ import info.plateaukao.einkbro.R
 import info.plateaukao.einkbro.preference.ConfigManager
 import info.plateaukao.einkbro.preference.StartPageItem
 import info.plateaukao.einkbro.unit.BookmarkRenderer
-import info.plateaukao.einkbro.unit.PasswordStore
 import info.plateaukao.einkbro.view.EBToast
 import info.plateaukao.einkbro.view.EBWebView
 import info.plateaukao.einkbro.view.compose.MyTheme
@@ -41,7 +40,6 @@ class StartPageItemActionsDialog(
     private val item: StartPageItem,
 ) : KoinComponent {
     private val config: ConfigManager by inject()
-    private val passwordStore: PasswordStore by inject()
     private val activity: Activity = ebWebView.context as Activity
 
     suspend fun show() {
@@ -90,7 +88,6 @@ class StartPageItemActionsDialog(
     private fun clearSiteData() {
         val host = hostOf(item.url)
         val clearCookieState = mutableStateOf(true)
-        val clearPasswordState = mutableStateOf(false)
         val composeView = ComposeView(activity).apply {
             setViewTreeLifecycleOwner(activity as LifecycleOwner)
             setViewTreeSavedStateRegistryOwner(activity as SavedStateRegistryOwner)
@@ -107,13 +104,6 @@ class StartPageItemActionsDialog(
                                 onCheckedChange = { clearCookieState.value = it },
                             )
                             Text(stringResource(R.string.start_page_clear_site_cookie))
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Checkbox(
-                                checked = clearPasswordState.value,
-                                onCheckedChange = { clearPasswordState.value = it },
-                            )
-                            Text(stringResource(R.string.start_page_clear_site_password))
                         }
                     }
                 }
@@ -137,9 +127,6 @@ class StartPageItemActionsDialog(
                         }
                     }
                     cm.flush()
-                }
-                if (clearPasswordState.value) {
-                    passwordStore.removeHost(host)
                 }
                 EBToast.show(activity, R.string.start_page_site_data_cleared)
             },

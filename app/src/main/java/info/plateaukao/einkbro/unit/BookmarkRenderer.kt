@@ -84,8 +84,7 @@ object BookmarkRenderer : KoinComponent {
         }
         val layoutClass = when (config.startPageLayout) {
             StartPageLayout.LIST -> "layout-list"
-            StartPageLayout.GRID_TWO -> "layout-grid cols-2"
-            StartPageLayout.GRID_THREE -> "layout-grid cols-3"
+            else -> "layout-grid"
         }
         val emptyHint =
             if (items.isEmpty()) {
