@@ -103,7 +103,11 @@ class UiConfigTest {
 
     @Test
     fun `hiddenMenuItems round trips`() {
-        assertEquals(emptySet<String>(), config.hiddenMenuItems)
+        // This fork hides every overflow-menu entry except Settings by default.
+        assertEquals(
+            info.plateaukao.einkbro.view.dialog.compose.MenuItemType.hiddenByDefault,
+            config.hiddenMenuItems
+        )
         config.hiddenMenuItems = setOf("a", "b")
         assertEquals(setOf("a", "b"), config.hiddenMenuItems)
     }
