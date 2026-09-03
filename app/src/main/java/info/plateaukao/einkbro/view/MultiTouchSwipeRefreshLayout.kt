@@ -51,8 +51,23 @@ class MultiTouchSwipeRefreshLayout(context: Context) : SwipeRefreshLayout(contex
         return super.dispatchTouchEvent(ev)
     }
 
+    // SwipeRefreshLayout re-checks its "is the page scrolled" gate on every
+    // interception attempt while measuring the pull from the original
+    // ACTION_DOWN, so a drag that reaches the page top mid-gesture (or a stale
+    // async scroll flag) turns into an instant refresh. Latch the gate at
+    // finger-down instead, Quark/Chrome style: only a gesture that starts with
+    // the page fully at top can ever become a pull-to-refresh.
+    private var gestureStartedScrolled = false
+
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         if (multiTouchDetected) return false
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN ->
+                gestureStartedScrolled = canChildScrollUp()
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL ->
+                gestureStartedScrolled = false
+        }
+        if (gestureStartedScrolled) return false
         return super.onInterceptTouchEvent(ev).also { intercepted ->
             if (intercepted) hasIntercepted = true
         }
